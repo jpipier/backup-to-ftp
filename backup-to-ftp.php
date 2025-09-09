@@ -67,6 +67,9 @@ if (defined('WP_CLI') && WP_CLI) {
             }
             $zip->close();
             \WP_CLI::success("ZIP final OK (" . size_format(filesize($bundle_zip)) . ")");
+            
+            $bundle_name = basename($bundle_zip);
+            $bundle_size = size_format(filesize($bundle_zip));
 
             // S'assurer que le dossier distant existe
             $this->ftp_ensure_remote_dir($host, $port, $user, $pass, $remote_dir, $ftps, $active);
@@ -85,24 +88,25 @@ if (defined('WP_CLI') && WP_CLI) {
 
             \WP_CLI::success("Sauvegarde terminée ✅");
 
-            // Nettoyage local : supprimer tout le dossier backups
-            $this->rmdir_recursive($backup_dir);
-            \WP_CLI::success("Dossier local $backup_dir supprimé ✅");
-
-            // Rapport email
+            // Rapport email (AVANT suppression locale)
             $subject = "Rapport de sauvegarde WordPress";
             $body = "Bonjour,\n\nVoici le rapport de sauvegarde :\n\n"
-                  . "- Site : " . home_url() . "\n"
-                  . "- Date : " . date('Y-m-d H:i:s') . "\n"
-                  . "- Archive envoyée : " . basename($bundle_zip) . " (" . size_format(filesize($bundle_zip)) . ")\n"
-                  . "- Destination FTP : ftp://{$host}:{$port}{$remote_dir}\n\n"
-                  . "Cordialement,\nVotre WordPress";
+                . "- Site : " . home_url() . "\n"
+                . "- Date : " . date('Y-m-d H:i:s') . "\n"
+                . "- Archive envoyée : $bundle_name ($bundle_size)\n"
+                . "- Destination FTP : ftp://{$host}:{$port}{$remote_dir}\n\n"
+                . "Cordialement,\nVotre WordPress";
             $headers = ["Content-Type: text/plain; charset=UTF-8"];
+
             if (wp_mail($mailto, $subject, $body, $headers)) {
                 \WP_CLI::success("Rapport envoyé à $mailto");
             } else {
                 \WP_CLI::warning("Impossible d’envoyer le rapport à $mailto");
             }
+
+            // Nettoyage local : supprimer tout le dossier backups
+            $this->rmdir_recursive($backup_dir);
+            \WP_CLI::success("Dossier local $backup_dir supprimé ✅");
         }
 
         // Zip wp-content

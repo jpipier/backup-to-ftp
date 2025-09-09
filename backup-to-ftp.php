@@ -1,9 +1,25 @@
 <?php
 /**
  * Plugin Name: WP-CLI Backup to FTP
- * Author: Julien Pipier
+ * Plugin URI: https://github.com/julienpipier/backup-to-ftp
  * Description: Commande WP-CLI pour sauvegarder DB + fichiers, créer un ZIP unique horodaté et l'envoyer vers un FTP/FTPS.
+ * Version: 1.0.0
+ * Requires at least: 5.0
+ * Requires PHP: 7.4
+ * Author: Julien Pipier
+ * Author URI: https://www.julienpipier.fr
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: backup-to-ftp
+ * Domain Path: /languages
+ * Network: true
+ * Update URI: false
  */
+
+// Empêcher l'accès direct au fichier
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 if (defined('WP_CLI') && WP_CLI) {
     class Backup_FTP_Command {
